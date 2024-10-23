@@ -1,5 +1,9 @@
 #include "../Include/glad/glad.h"
 #include "glfw3.h"
+#include "glm/ext/matrix_transform.hpp"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 #include "iostream"
 
 #define Z_DEFAULT 0.0f;
@@ -7,21 +11,22 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void process_input(GLFWwindow* window);
 
-const char* vertexShaderSource = "#version 330 core \n"
-"layout (location = 0) in vec3 aPos;\n"
-"void main()\n"
-"{\n"
-"gl_Position = vec4(aPos.x, apos.y, aPos.z, 1.0);\n"
-"}\0";
+const char* vertexShaderSource =
+	"#version 330 core\n"
+	"layout (location = 0) in vec3 aPos;\n"
+	"uniform mat4 transform;"
+	"void main()\n"
+	"{\n"
+	"   gl_Position = transform * vec4(aPos, 1.0); "
+	"}\0";
 
 const char * fragmentShaderSource = "version 330 core\n"
 "out vec4 FragColor\n"
 "void main()\n"
 "{\n"
-"FragColor = vec4(0.1f, 0.5f, 0.2f, 1.0f)"
+"FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f)"
 "}\0";
 
-//making this comment to test changes
 
 struct Triangle;
 struct Vert;
@@ -46,18 +51,7 @@ int main()
 	glViewport(0, 0, 900, 600);
 
 
-	//vertex buffer
-	unsigned int VBO;
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-	float vertices[] = {
-		-0.5f, 0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		0.0f, 0.5f, 0.0f
-	};
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	
 
 	//initialize shaders
 	unsigned int vertexShader;
@@ -74,6 +68,42 @@ int main()
 	glCompileShader(fragmentShader);
 
 
+	float vertices[] = {
+		-0.5f, -0.5f, 0.0f,
+		0.5f, -0.5f, 0.0f,
+		0.0f, 0.5f, 0.0f,
+
+		-1, -1, .0f,
+		.1f, -.1f, .0f,
+		0.0f, 0.1f, 0.0f
+	};
+
+	//vertex buffer
+	unsigned int VBO;
+	unsigned int VAO;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+
+	unsigned int shaderProgram = glCreateProgram();
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+	glLinkProgram(shaderProgram);
+
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	while (!glfwWindowShouldClose(window))
@@ -84,6 +114,22 @@ int main()
 		//render stuff here
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		
+		glUseProgram(shaderProgram);
+
+
+		glm::mat4 transform = glm::mat4(1.0);
+		transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+		transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+
+		unsigned int transformLocation = glGetUniformLocation(shaderProgram, "transform");
+		glUniformMatrix4fv(transformLocation, 1, GL_FALSE, glm::value_ptr(transform));
+
+
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
 		//callbacks/events/buffer management
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -110,54 +156,8 @@ int main()
 
 	float* array = t->toArray();*/
 
-	return 0;
+	//return 0;
 }
-
-struct Vert
-{
-	float x;
-	float y;
-	float z;
-
-};
-
-struct Triangle
-{
-	Vert a;
-	Vert b;
-	Vert c;
-
-	/*Triangle()
-	{
-
-	}*/
-
-	Triangle(Vert a, Vert b, Vert c)
-	{
-		this->a = a;
-		this->b = b;
-		this->c = c;
-	}
-
-
-	float* toArray()
-	{
-		float* vert = new float[9];
-		vert[0] = this->a.x;
-		vert[1] = this->a.y;
-		vert[2] = this->a.z;
-
-		vert[3] = this->b.x;
-		vert[4] = this->b.y;
-		vert[5] = this->b.z;
-
-		vert[6] = this->c.x;
-		vert[7] = this->c.y;
-		vert[8] = this->c.z;
-
-		return vert;
-	}
-};
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -171,3 +171,4 @@ void process_input(GLFWwindow* window)
 		glfwSetWindowShouldClose(window, true);
 	}
 }
+

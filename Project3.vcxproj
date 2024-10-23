@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>C:\glfw-3.4.bin.WIN64\include\GLFW;C:\glfw-3.4.bin.WIN64\lib-vc2022;C:\glfw-3.4;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\glfw-3.4.bin.WIN64\include\GLFW;C:\glfw-3.4.bin.WIN64\lib-vc2022;$(IncludePath)</IncludePath>
+    <IncludePath>U:\MarinaAGraphicsApps\Project3\glm;C:\glfw-3.4.bin.WIN64\include\GLFW;C:\glfw-3.4.bin.WIN64\lib-vc2022;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
