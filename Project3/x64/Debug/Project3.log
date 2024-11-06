@@ -1,1 +1,5 @@
-﻿  Project3.vcxproj -> U:\MarinaAGraphicsApps\Project3\x64\Debug\Project3.exe
+﻿  main.cpp
+U:\MarinaAGraphicsApps\Project3\src\main.cpp(271,12): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+  LINK : U:\MarinaAGraphicsApps\Project3\x64\Debug\Project3.exe not found or not built by the last incremental link; performing full link
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+  Project3.vcxproj -> U:\MarinaAGraphicsApps\Project3\x64\Debug\Project3.exe
